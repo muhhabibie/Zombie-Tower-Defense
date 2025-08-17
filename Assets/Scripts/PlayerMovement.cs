@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -21,12 +21,29 @@ namespace LastBastion.Player
         [Header("Health")]
         public Health health;
 
-        private Rigidbody rb;
+        [Header("Ground Check")]
+        public Transform groundCheck;
+        public float groundDistance = 0.3f;
+        public LayerMask groundMask;
+        public float gravity = -9.81f;
+
+        [Header("Animation")]
+        public Animator animator;   // Animator reference
+
+        [Header("Idle Sit")]
+        public float idleToSitTime = 5f; // detik sebelum duduk
+        private float idleTimer = 0f;
+        private float idleSitParam = 0f;  // untuk parameter Blend Tree
+
+        private CharacterController controller;
         private Vector3 movementInput;
         private Vector3 lastAim = Vector3.forward;
         private float nextMeleeTime;
         private bool isDashing;
         private float nextDashTime;
+
+        private Vector3 velocity;
+        private bool isGrounded;
 
         // Input System
         private PlayerInput playerInput;
@@ -37,10 +54,9 @@ namespace LastBastion.Player
 
         private void Awake()
         {
-            rb = GetComponent<Rigidbody>();
-            rb.freezeRotation = true; // biar nggak miring
-
+            controller = GetComponent<CharacterController>();
             playerInput = GetComponent<PlayerInput>();
+
             if (playerInput != null)
             {
                 moveAction = playerInput.actions.FindAction("Move");
@@ -50,43 +66,41 @@ namespace LastBastion.Player
             }
 
             if (health == null) health = GetComponent<Health>();
+
+            if (animator == null) animator = GetComponentInChildren<Animator>();
         }
 
         private void Update()
         {
+            // ===== Ground Check =====
+            if (groundCheck != null)
+            {
+                isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+            }
+            else
+            {
+                isGrounded = controller.isGrounded;
+            }
+
+            if (isGrounded && velocity.y < 0)
+                velocity.y = -2f;
+
             // ===== Movement Input =====
             Vector2 moveValue = Vector2.zero;
 
             if (moveAction != null)
-            {
                 moveValue = moveAction.ReadValue<Vector2>();
-            }
             else
             {
-                // PC fallback
                 moveValue = new Vector2(
                     (Keyboard.current.dKey.isPressed ? 1 : 0) - (Keyboard.current.aKey.isPressed ? 1 : 0),
                     (Keyboard.current.wKey.isPressed ? 1 : 0) - (Keyboard.current.sKey.isPressed ? 1 : 0)
                 );
-
-                // Android fallback
-                if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
-                {
-                    moveValue = Touchscreen.current.primaryTouch.delta.ReadValue().normalized;
-                }
             }
 
             movementInput = new Vector3(moveValue.x, 0f, moveValue.y);
 
-            // ===== Aim =====
-            Vector2 lookValue = Vector2.zero;
-
-            if (lookAction != null)
-            {
-                lookValue = lookAction.ReadValue<Vector2>();
-            }
-
-            // PC mouse aim
+            // ===== Look / Aim =====
             if (Mouse.current != null)
             {
                 Vector3 mousePos = Mouse.current.position.ReadValue();
@@ -102,14 +116,6 @@ namespace LastBastion.Player
                 }
             }
 
-            // Android touch aim
-            if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
-            {
-                Vector2 touchDelta = Touchscreen.current.primaryTouch.delta.ReadValue();
-                if (touchDelta.sqrMagnitude > 0.01f)
-                    lastAim = new Vector3(touchDelta.x, 0, touchDelta.y).normalized;
-            }
-
             // ===== Apply Rotation =====
             if (lastAim.sqrMagnitude > 0.05f)
             {
@@ -119,8 +125,7 @@ namespace LastBastion.Player
 
             // ===== Attack =====
             if ((meleeAction != null && meleeAction.WasPerformedThisFrame()) ||
-                (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) ||
-                (Touchscreen.current != null && Touchscreen.current.primaryTouch.tapCount.ReadValue() > 0))
+                (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame))
             {
                 TryMelee();
             }
@@ -131,23 +136,51 @@ namespace LastBastion.Player
             {
                 TryDash();
             }
-        }
 
-        private void FixedUpdate()
-        {
+            // ===== Movement =====
             float speed = isDashing ? dashSpeed : moveSpeed;
-
-            // Gerakan relatif terhadap rotasi player
             Vector3 moveDir = transform.forward * movementInput.z + transform.right * movementInput.x;
-            moveDir.y = 0f;
+            controller.Move(moveDir.normalized * speed * Time.deltaTime);
 
-            rb.linearVelocity = moveDir.normalized * speed;
+            // ===== Gravity =====
+            velocity.y += gravity * Time.deltaTime;
+            controller.Move(velocity * Time.deltaTime);
+
+            // ===== Animator Update =====
+            if (animator != null)
+            {
+                // Forward/backward movement
+                float forwardInput = movementInput.z;
+                animator.SetFloat("MoveZ", forwardInput, 0f, Time.deltaTime);
+
+                // ===== Idle → Sit Blend Tree =====
+                if (movementInput.magnitude < 0.1f && !isDashing)
+                {
+                    idleTimer += Time.deltaTime;
+                    idleSitParam = Mathf.Clamp01(idleTimer / idleToSitTime);
+                }
+                else
+                {
+                    // kalau sedang duduk & tiba-tiba bergerak → bangun
+                    if (idleSitParam >= 1f)
+                        animator.SetTrigger("SitWake");
+
+                    idleTimer = 0f;
+                    idleSitParam = 0f;
+                }
+                animator.SetFloat("IdleSit", 1f); // paksa cheer
+                animator.SetFloat("IdleSit", idleSitParam, 0f, Time.deltaTime);
+            }
         }
 
         private void TryMelee()
         {
             if (Time.time < nextMeleeTime) return;
             nextMeleeTime = Time.time + meleeCooldown;
+
+            // kalau sedang duduk → bangun dulu sebelum attack
+            if (idleSitParam >= 1f && animator != null)
+                animator.SetTrigger("SitWake");
 
             Vector3 center = transform.position + lastAim * meleeRange * 0.5f;
             float radius = meleeRange * 0.6f;
@@ -158,11 +191,19 @@ namespace LastBastion.Player
                 if (dmg != null)
                     dmg.TakeDamage(meleeDamage);
             }
+
+            if (animator != null)
+                animator.SetTrigger("Attack");
         }
 
         private void TryDash()
         {
             if (Time.time < nextDashTime) return;
+
+            // kalau sedang duduk → bangun dulu sebelum dash
+            if (idleSitParam >= 1f && animator != null)
+                animator.SetTrigger("SitWake");
+
             StartCoroutine(DashRoutine());
         }
 
@@ -170,11 +211,14 @@ namespace LastBastion.Player
         {
             nextDashTime = Time.time + dashCooldown;
             isDashing = true;
+
+            if (animator != null)
+                animator.SetTrigger("Dash");
+
             yield return new WaitForSeconds(dashDuration);
             isDashing = false;
         }
 
-#if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.yellow;
@@ -182,7 +226,12 @@ namespace LastBastion.Player
                 ? transform.position + lastAim * meleeRange * 0.5f
                 : transform.position + Vector3.forward * meleeRange * 0.5f;
             Gizmos.DrawWireSphere(center, meleeRange * 0.6f);
+
+            if (groundCheck != null)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireSphere(groundCheck.position, groundDistance);
+            }
         }
-#endif
     }
 }
