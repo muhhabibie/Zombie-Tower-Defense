@@ -27,8 +27,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 5, y: 5, z: 5}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -46,6 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 15
   height: 10
+  tileSize: 5
   groundTilePrefab: {fileID: 60456520446834224, guid: 8d5fdae87a6cd7f428c00ce27092d9d7, type: 3}
   pathSpawnPrefab: {fileID: 969002910911357826, guid: 18d716adea5af13458eb26828bdae851, type: 3}
   pathStraightPrefab: {fileID: 8139486513775175900, guid: be04a158547a2aa49a68671b794da9ac, type: 3}
