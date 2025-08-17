@@ -13,6 +13,7 @@ public class MapGenerator : MonoBehaviour
     [Header("Map Dimensions")]
     public int width;
     public int height;
+    public float tileSize = 5f;
 
     [Header("Tile Prefabs")]
     public GameObject groundTilePrefab;
@@ -48,15 +49,15 @@ public class MapGenerator : MonoBehaviour
             {
                 if (grid[x, y] == TileType.Ground)
                 {
-                    InstantiateTile(groundTilePrefab, new Vector3(x, 0, y), Quaternion.identity);
+                    InstantiateTile(groundTilePrefab, new Vector3(x * tileSize, 0, y * tileSize), Quaternion.identity, Vector3.one);
                 }
                 else if (grid[x, y] == TileType.Path)
                 {
-                    Vector3 position = new Vector3(x, 0, y);
+                    Vector3 position = new Vector3(x * tileSize, 0, y * tileSize);
 
                     if (x == 0 && pathSpawnPrefab != null)
                     {
-                        InstantiateTile(pathSpawnPrefab, position, Quaternion.Euler(0, 90, 0));
+                        InstantiateTile(pathSpawnPrefab, position, Quaternion.Euler(0, 90, 0), Vector3.one);
                         continue;
                     }
 
@@ -104,18 +105,19 @@ public class MapGenerator : MonoBehaviour
                         }
                     }
 
-                    InstantiateTile(prefabToUse, position, rotation);
+                    InstantiateTile(prefabToUse, position, rotation, Vector3.one);
                 }
             }
         }
     }
 
-    void InstantiateTile(GameObject prefab, Vector3 position, Quaternion rotation)
+    void InstantiateTile(GameObject prefab, Vector3 position, Quaternion rotation, Vector3 scale)
     {
         if (prefab != null)
         {
             GameObject newTile = Instantiate(prefab, position, rotation);
             newTile.transform.parent = this.transform;
+            newTile.transform.localScale = scale;
         }
     }
 
@@ -230,10 +232,10 @@ public class MapGenerator : MonoBehaviour
 
                         if (prefabToUse != null)
                         {
-                            Vector3 position = new Vector3(x, 0, y);
+                            Vector3 position = new Vector3(x * tileSize, 1f, y * tileSize);
                             Quaternion rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
 
-                            InstantiateTile(prefabToUse, position, rotation);
+                            InstantiateTile(prefabToUse, position, rotation, Vector3.one);
                         }
                     }
                 }
