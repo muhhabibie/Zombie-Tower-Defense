@@ -3,7 +3,7 @@ using UnityEngine;
 public class CharacterSpawner : MonoBehaviour
 {
     [Header("Referensi")]
-    public MapGenerator2 mapGenerator; 
+    public MapGenerator3 mapGenerator; 
     public GameObject characterPrefab;
     public IsoCameraFollow isoCameraFollow;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
