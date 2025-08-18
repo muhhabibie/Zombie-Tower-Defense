@@ -37,6 +37,8 @@ public class MapGenerator2 : MonoBehaviour
     [Range(0, 1)]
     public float tallGroundGroupChance = 0.1f;
 
+    public Vector3 endPointPosition { get; private set; }
+
     private TileType[,] grid;
     private int[,] groundVariationMap; // 0=Normal, 1=Tinggi, 2=Tanjakan
 
@@ -243,6 +245,8 @@ public class MapGenerator2 : MonoBehaviour
                         else if (pathDown) rotation = Quaternion.Euler(0, 180, 0);
                         else if (pathLeft) rotation = Quaternion.Euler(0, -90, 0);
                         else if (pathRight) rotation = Quaternion.Euler(0, 90, 0);
+                        endPointPosition = position;
+                        Debug.Log("MapGenerator MENYIMPAN endPointPosition: " + endPointPosition);
                     }
                     else if (neighborCount == 2)
                     {
