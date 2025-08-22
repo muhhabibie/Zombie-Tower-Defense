@@ -44,5 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de24df61ee81ea548b9466cada9f3f3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapGenerator: {fileID: -828631228836329037, guid: 80b321ceeba064342970c01247582b8e, type: 3}
+  mapGenerator: {fileID: 2163995162986490309, guid: 80b321ceeba064342970c01247582b8e, type: 3}
   characterPrefab: {fileID: 3998835591511866760, guid: 7ec75e26f0ee10f448fecc0aee691782, type: 3}
+  isoCameraFollow: {fileID: 5737240287599912330, guid: ffbcbf97af0e02a4abaf083fec69386c, type: 3}

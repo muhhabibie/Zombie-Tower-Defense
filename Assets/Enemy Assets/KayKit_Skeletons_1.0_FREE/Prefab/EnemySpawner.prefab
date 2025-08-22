@@ -44,7 +44,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32536a7826c2aa543b6043050d9a014c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyPrefab: {fileID: 3300731673481621561, guid: 7c404415de577754e939a6b24a7eb45f, type: 3}
-  mapGenerator: {fileID: 0}
+  normalEnemyPrefab: {fileID: 3300731673481621561, guid: 7c404415de577754e939a6b24a7eb45f, type: 3}
+  fastEnemyPrefab: {fileID: 5482674375540327759, guid: 3bdb12d0211dd444ab7470c37b39e330, type: 3}
+  tankEnemyPrefab: {fileID: 7856169670596332171, guid: 13e91b687b35a6f41ab5fb8bc98aae5f, type: 3}
+  debuffEnemyPrefab: {fileID: 5338768161849299687, guid: 371d36e6c97905e40b528f2587f07e9e, type: 3}
+  mapGenerator: {fileID: 2163995162986490309, guid: 80b321ceeba064342970c01247582b8e, type: 3}
   spawnInterval: 2
-  totalEnemies: 10
+  waveInterval: 5
+  enemiesPerWave: 5
+  wavesPerRound: 3

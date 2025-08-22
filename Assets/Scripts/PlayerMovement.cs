@@ -6,6 +6,7 @@ namespace LastBastion.Player
 {
     public class PlayerController : MonoBehaviour
     {
+        public float placeRange = 5f;
         [Header("Movement")]
         public float moveSpeed = 6f;
         public float dashSpeed = 12f;
