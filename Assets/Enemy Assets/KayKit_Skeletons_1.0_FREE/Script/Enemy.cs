@@ -1,10 +1,14 @@
 using UnityEngine;
 
 [RequireComponent(typeof(EnemyStats))]
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, IDamageable
 {
     private EnemyStats stats;
     private int currentHP;
+
+    [Header("Coin Drop")]
+    public GameObject coinPrefab;  // prefab koin
+    public int coinsToDrop = 1;    // jumlah koin yang dijatuhkan
 
     void Awake()
     {
@@ -24,11 +28,20 @@ public class Enemy : MonoBehaviour
 
     private void Die()
     {
-        // Bisa tambahkan animasi mati kalau ada animator
-        // Animator anim = GetComponent<Animator>();
-        // if (anim != null) anim.SetTrigger("Die");
+        DropCoins();
+        Destroy(gameObject);
+    }
 
-        Destroy(gameObject); // musuh dihancurkan
+    private void DropCoins()
+    {
+        if (coinPrefab == null) return;
+
+        for (int i = 0; i < coinsToDrop; i++)
+        {
+            // spawn koin sedikit acak posisi agar tidak tumpuk
+            Vector3 spawnPos = transform.position + new Vector3(Random.Range(-0.5f, 0.5f), 0.5f, Random.Range(-0.5f, 0.5f));
+            Instantiate(coinPrefab, spawnPos, Quaternion.identity);
+        }
     }
 
     public int GetCurrentHP()

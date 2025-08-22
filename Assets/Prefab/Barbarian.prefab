@@ -1436,6 +1436,7 @@ GameObject:
   - component: {fileID: 2044459063677776401}
   - component: {fileID: 1967057991153208436}
   - component: {fileID: 5258668535118213087}
+  - component: {fileID: 2910872714534049261}
   m_Layer: 0
   m_Name: Barbarian
   m_TagString: Player
@@ -1477,26 +1478,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0be41542163b41446a90481f0469e862, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  placeRange: 5
   moveSpeed: 6
   dashSpeed: 12
   dashDuration: 0.15
   dashCooldown: 1.5
-  meleeRange: 1.2
-  meleeDamage: 20
-  meleeCooldown: 0.5
-  enemyMask:
-    serializedVersion: 2
-    m_Bits: 0
+  animator: {fileID: 5258668535118213087}
   health: {fileID: 0}
   groundCheck: {fileID: 0}
   groundDistance: 0.3
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  gravity: -9.81
-  animator: {fileID: 5258668535118213087}
-  idleToSitTime: 5
+  coinCount: 0
 --- !u!143 &1967057991153208436
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1544,6 +1537,25 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &2910872714534049261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3998835591511866760}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20e222297afdefc4cb5a3ce9bbbbe78f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackRange: 2
+  damage: 25
+  attackRate: 1
+  skillRange: 2.5
+  skillDamage: 60
+  skillCooldown: 5
+  animator: {fileID: 5258668535118213087}
 --- !u!1 &4001230713014584412
 GameObject:
   m_ObjectHideFlags: 0

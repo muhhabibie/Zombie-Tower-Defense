@@ -53,3 +53,4 @@ MonoBehaviour:
   waveInterval: 5
   enemiesPerWave: 5
   wavesPerRound: 3
+  healthBarPrefab: {fileID: 8485914601872384449, guid: 8816ea730af903240a90863d80a00d34, type: 3}
