@@ -180,10 +180,10 @@ public class MapGenerator3 : MonoBehaviour
 
                     switch (variation)
                     {
-                        case 1: scaleToUse.y *= 4; break;
+                        case 1: scaleToUse.y *= 3; break;
                         case 2:
                             prefabToUse = slopePrefab;
-                            scaleToUse.y *= 2;
+                            scaleToUse.y *= 1.5f;
                             if (x + 1 < width && groundVariationMap[x + 1, y] == 1) rotation = Quaternion.Euler(0, -90, 0);
                             else if (x - 1 >= 0 && groundVariationMap[x - 1, y] == 1) rotation = Quaternion.Euler(0, 90, 0);
                             else if (y + 1 < height && groundVariationMap[x, y + 1] == 1) rotation = Quaternion.Euler(0, 180, 0);
@@ -405,7 +405,7 @@ public class MapGenerator3 : MonoBehaviour
                         if (prefabToUse != null)
                         {
                             float baseHeight = 0f;
-                            if (variation == 1) baseHeight = 3f;
+                            if (variation == 1) baseHeight = 2f;
 
                             Vector3 position = new Vector3(x * tileSize, baseHeight + 1f, y * tileSize);
                             Quaternion rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);

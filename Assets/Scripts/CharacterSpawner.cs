@@ -20,7 +20,7 @@ public class CharacterSpawner : MonoBehaviour
 
 
         spawnPosition.y += 2f;
-        spawnPosition.x -= 3f;
+        spawnPosition.x -= 2f;
 
 
         GameObject spawnedCharacter = Instantiate(characterPrefab, spawnPosition, Quaternion.identity);
