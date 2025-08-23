@@ -1,6 +1,6 @@
 using System.IO;
 using UnityEngine;
-using System.Collections.Generic; // ⬅️ Tambahan untuk List<Vector3>
+using System.Collections.Generic; 
 
 public class MapGenerator3 : MonoBehaviour
 {
@@ -15,6 +15,13 @@ public class MapGenerator3 : MonoBehaviour
     public int width;
     public int height;
     public float tileSize = 5f;
+    public int outerFrameSize = 3;
+
+    [Tooltip("Ukuran khusus untuk ubin Spawn.")]
+    public Vector3 spawnTileScale = Vector3.one;
+
+    [Tooltip("Ukuran khusus untuk ubin End.")]
+    public Vector3 endTileScale = Vector3.one;
 
     [Header("Tile Prefabs")]
     public GameObject groundTilePrefab;
@@ -25,10 +32,15 @@ public class MapGenerator3 : MonoBehaviour
     public GameObject pathSplitPrefab;
     public GameObject pathCrossingPrefab;
     public GameObject pathEndPrefab;
+    public GameObject riverStraightPrefab; 
+    public GameObject riverCornerPrefab;
 
     [Header("Decoration Prefabs")]
     [Tooltip("Prefab-prefab yang akan ditempatkan secara acak di ubin tanah.")]
     public GameObject[] decorationPrefabs;
+
+    [Tooltip("Prefab dekorasi KHUSUS untuk bingkai luar peta (misal: pohon, batu).")]
+    public GameObject[] outerDecorationPrefabs; 
 
     [Tooltip("Seberapa padat dekorasi yang akan muncul. 0 = tidak ada, 1 = setiap ubin tanah ada dekorasi.")]
     [Range(0, 1)]
@@ -45,7 +57,8 @@ public class MapGenerator3 : MonoBehaviour
 
     private TileType[,] grid;
     private int[,] groundVariationMap; // 0=Normal, 1=Tinggi, 2=Tanjakan
-
+    public Vector2Int endPointGridCoord;
+    public Vector2Int spawnPointGridCoord;
     void Start()
     {
         GenerateMapData();
@@ -164,92 +177,181 @@ public class MapGenerator3 : MonoBehaviour
     // =============================================
     void InstantiateTiles()
     {
-        Debug.Log("Instantiating COMPLETE SMART tiles...");
+        Debug.Log("Instantiating map with outer frame...");
 
-        for (int x = 0; x < width; x++)
+        // Tentukan batas baru yang lebih luas untuk loop
+        int startX = -outerFrameSize;
+        int endX = width + outerFrameSize;
+        int startY = -outerFrameSize;
+        int endY = height + outerFrameSize;
+
+        for (int x = startX; x < endX; x++)
         {
-            for (int y = 0; y < height; y++)
+            for (int y = startY; y < endY; y++)
             {
-                if (grid[x, y] == TileType.Ground)
+                bool isInMainMap = (x >= 0 && x < width && y >= 0 && y < height);
+
+                if (isInMainMap)
                 {
-                    int variation = groundVariationMap[x, y];
-                    Vector3 position = new Vector3(x * tileSize, 0, y * tileSize);
-                    Quaternion rotation = Quaternion.identity;
-                    GameObject prefabToUse = groundTilePrefab;
-                    Vector3 scaleToUse = Vector3.one;
-
-                    switch (variation)
+                    if (grid[x, y] == TileType.Ground)
                     {
-                        case 1: scaleToUse.y *= 3; break;
-                        case 2:
-                            prefabToUse = slopePrefab;
-                            scaleToUse.y *= 1.5f;
-                            if (x + 1 < width && groundVariationMap[x + 1, y] == 1) rotation = Quaternion.Euler(0, -90, 0);
-                            else if (x - 1 >= 0 && groundVariationMap[x - 1, y] == 1) rotation = Quaternion.Euler(0, 90, 0);
-                            else if (y + 1 < height && groundVariationMap[x, y + 1] == 1) rotation = Quaternion.Euler(0, 180, 0);
-                            else if (y - 1 >= 0 && groundVariationMap[x, y - 1] == 1) rotation = Quaternion.Euler(0, 0, 0);
-                            break;
-                    }
+                        int variation = groundVariationMap[x, y];
+                        Vector3 position = new Vector3(x * tileSize, 0, y * tileSize);
+                        Quaternion rotation = Quaternion.identity;
+                        GameObject prefabToUse = groundTilePrefab;
+                        Vector3 scaleToUse = Vector3.one;
 
-                    InstantiateTile(prefabToUse, position, rotation, scaleToUse);
-                }
-                else if (grid[x, y] == TileType.Path)
-                {
-                    Vector3 position = new Vector3(x * tileSize, 0, y * tileSize);
-
-                    if (x == 0 && pathSpawnPrefab != null)
-                    {
-                        InstantiateTile(pathSpawnPrefab, position, Quaternion.Euler(0, 90, 0), Vector3.one);
-                        continue;
-                    }
-
-                    bool pathUp = IsPathAt(x, y + 1);
-                    bool pathDown = IsPathAt(x, y - 1);
-                    bool pathRight = IsPathAt(x + 1, y);
-                    bool pathLeft = IsPathAt(x - 1, y);
-
-                    int neighborCount = 0;
-                    if (pathUp) neighborCount++;
-                    if (pathDown) neighborCount++;
-                    if (pathRight) neighborCount++;
-                    if (pathLeft) neighborCount++;
-
-                    GameObject prefabToUse = pathStraightPrefab;
-                    Quaternion rotation = Quaternion.identity;
-
-                    if (neighborCount == 0 || neighborCount == 1)
-                    {
-                        prefabToUse = pathEndPrefab;
-                        if (pathUp) rotation = Quaternion.Euler(0, 0, 0);
-                        else if (pathDown) rotation = Quaternion.Euler(0, 180, 0);
-                        else if (pathLeft) rotation = Quaternion.Euler(0, -90, 0);
-                        else if (pathRight) rotation = Quaternion.Euler(0, 90, 0);
-                        endPointPosition = position;
-                        Debug.Log("MapGenerator MENYIMPAN endPointPosition: " + endPointPosition);
-                    }
-                    else if (neighborCount == 2)
-                    {
-                        if (pathUp && pathDown)
+                        switch (variation)
                         {
-                            prefabToUse = pathStraightPrefab;
-                            rotation = Quaternion.Euler(0, 0, 0);
+                            case 1: scaleToUse.y *= 3; break;
+                            case 2:
+                                prefabToUse = slopePrefab;
+                                scaleToUse.y *= 1.5f;
+                                if (x + 1 < width && groundVariationMap[x + 1, y] == 1) rotation = Quaternion.Euler(0, -90, 0);
+                                else if (x - 1 >= 0 && groundVariationMap[x - 1, y] == 1) rotation = Quaternion.Euler(0, 90, 0);
+                                else if (y + 1 < height && groundVariationMap[x, y + 1] == 1) rotation = Quaternion.Euler(0, 180, 0);
+                                else if (y - 1 >= 0 && groundVariationMap[x, y - 1] == 1) rotation = Quaternion.Euler(0, 0, 0);
+                                break;
                         }
-                        else if (pathLeft && pathRight)
+
+                        InstantiateTile(prefabToUse, position, rotation, scaleToUse);
+                    }
+                    else if (grid[x, y] == TileType.Path)
+                    {
+                        Vector3 position = new Vector3(x * tileSize, 0, y * tileSize);
+
+                        if (x == 0 && pathSpawnPrefab != null)
                         {
-                            prefabToUse = pathStraightPrefab;
-                            rotation = Quaternion.Euler(0, 90, 0);
+                            spawnTileScale.z = 1.4f;
+                            InstantiateTile(pathSpawnPrefab, position, Quaternion.Euler(0, 90, 0), spawnTileScale);
+                            continue;
+                        }
+
+                        bool pathUp = IsPathAt(x, y + 1);
+                        bool pathDown = IsPathAt(x, y - 1);
+                        bool pathRight = IsPathAt(x + 1, y);
+                        bool pathLeft = IsPathAt(x - 1, y);
+
+                        int neighborCount = 0;
+                        if (pathUp) neighborCount++;
+                        if (pathDown) neighborCount++;
+                        if (pathRight) neighborCount++;
+                        if (pathLeft) neighborCount++;
+
+                        GameObject prefabToUse = pathStraightPrefab;
+                        Quaternion rotation = Quaternion.identity;
+                        Vector3 scaleToUse = Vector3.one;
+
+                        if (neighborCount == 0 || neighborCount == 1)
+                        {
+                            prefabToUse = pathEndPrefab;
+                            endTileScale.z = 1.4f;
+                            scaleToUse = endTileScale;
+                            if (pathUp) rotation = Quaternion.Euler(0, 0, 0);
+                            else if (pathDown) rotation = Quaternion.Euler(0, 180, 0);
+                            else if (pathLeft) rotation = Quaternion.Euler(0, -90, 0);
+                            else if (pathRight) rotation = Quaternion.Euler(0, 90, 0);
+                            endPointPosition = position;
+                            Debug.Log("MapGenerator MENYIMPAN endPointPosition: " + endPointPosition);
+                        }
+                        else if (neighborCount == 2)
+                        {
+                            if (pathUp && pathDown)
+                            {
+                                prefabToUse = pathStraightPrefab;
+                                rotation = Quaternion.Euler(0, 0, 0);
+                            }
+                            else if (pathLeft && pathRight)
+                            {
+                                prefabToUse = pathStraightPrefab;
+                                rotation = Quaternion.Euler(0, 90, 0);
+                            }
+                            else
+                            {
+                                prefabToUse = pathCornerPrefab;
+                                if (pathUp && pathRight) rotation = Quaternion.Euler(0, 90, 0);
+                                else if (pathRight && pathDown) rotation = Quaternion.Euler(0, 180, 0);
+                                else if (pathDown && pathLeft) rotation = Quaternion.Euler(0, -90, 0);
+                                else if (pathLeft && pathUp) rotation = Quaternion.Euler(0, 0, 0);
+                            }
+                        }
+
+                        InstantiateTile(prefabToUse, position, rotation, scaleToUse);
+                    }
+                }
+                else
+                {
+                    // === JIKA DI LUAR PETA (AREA BINGKAI) ===
+                    Vector3 position = new Vector3(x * tileSize, 0, y * tileSize);
+
+                    // Cek #1: Apakah ini area untuk KASTIL atau GERBANG? (Prioritas tertinggi - tetap bersih)
+                    bool isCastleArea = (x >= endPointGridCoord.x + 1 && x <= endPointGridCoord.x + 3 &&
+                                         y >= endPointGridCoord.y - 1 && y <= endPointGridCoord.y + 1);
+                    bool isGateArea = (x >= -outerFrameSize && x < 0 &&
+                                       y >= spawnPointGridCoord.y - 1 && y <= spawnPointGridCoord.y + 1);
+
+                    if (isCastleArea || isGateArea)
+                    {
+                        // KHUSUS UNTUK AREA KASTIL atau GERBANG: Hanya tempatkan tanah biasa.
+                        InstantiateTile(groundTilePrefab, position, Quaternion.identity, Vector3.one);
+                    }
+                    else
+                    {
+                        // Cek #2: Apakah ini LAPISAN PERTAMA bingkai luar? (Prioritas kedua - bisa jadi sungai)
+                        bool isFirstLayerRing = (x == -1 && y >= -1 && y <= height) || (x == width && y >= -1 && y <= height) || (y == -1 && x >= -1 && x <= width) || (y == height && x >= -1 && x <= width);
+
+                        if (isFirstLayerRing)
+                        {
+                            // --- LAPISAN PERTAMA: BUAT SUNGAI ---
+                            GameObject prefabToUse;
+                            Quaternion rotation = Quaternion.identity;
+
+                            // Cek apakah ini sudut sungai (pojok-pojok bingkai)
+                            bool isCorner = (x == -1 || x == width) && (y == -1 || y == height);
+
+                            if (isCorner)
+                            {
+                                prefabToUse = riverCornerPrefab;
+                                // Tentukan rotasi untuk setiap sudut (logika ini sudah benar)
+                                if (x == -1 && y == -1) rotation = Quaternion.Euler(0, 90, 0);
+                                else if (x == width && y == -1) rotation = Quaternion.Euler(0, 0, 0);
+                                else if (x == -1 && y == height) rotation = Quaternion.Euler(0, 180, 0);
+                                else if (x == width && y == height) rotation = Quaternion.Euler(0, -90, 0);
+                            }
+                            else // Jika bukan sudut, berarti bagian lurus
+                            {
+                                prefabToUse = riverStraightPrefab;
+
+                                // --- LOGIKA BARU UNTUK ROTASI LURUS ---
+                                // Cek apakah ubin berada di sisi vertikal (kiri atau kanan) peta
+                                if (x == -1 || x == width)
+                                {
+                                    // Jika ya, ubin lurus perlu diputar 90 derajat agar menjadi vertikal
+                                    rotation = Quaternion.Euler(0, 0, 0);
+                                }
+                                // Jika tidak, berarti ubin berada di sisi horizontal (atas atau bawah).
+                                // Untuk sisi horizontal, tidak perlu rotasi (Y = 0).
+                                else // Jika tidak, berarti di sisi horizontal (atas atau bawah)
+                                {
+                                    // Gunakan variabel rotasi horizontal yang bisa diatur dari Inspector
+                                    rotation = Quaternion.Euler(0,90,0);
+                                }
+                            }
+                            InstantiateTile(prefabToUse, position, rotation, Vector3.one);
                         }
                         else
                         {
-                            prefabToUse = pathCornerPrefab;
-                            if (pathUp && pathRight) rotation = Quaternion.Euler(0, 90, 0);
-                            else if (pathRight && pathDown) rotation = Quaternion.Euler(0, 180, 0);
-                            else if (pathDown && pathLeft) rotation = Quaternion.Euler(0, -90, 0);
-                            else if (pathLeft && pathUp) rotation = Quaternion.Euler(0, 0, 0);
+                            // Cek #3: LAPISAN LAIN bingkai luar: Tempatkan tanah dengan dekorasi
+                            InstantiateTile(groundTilePrefab, position, Quaternion.identity, Vector3.one);
+                            if (outerDecorationPrefabs != null && outerDecorationPrefabs.Length > 0)
+                            {
+                                GameObject decorPrefab = outerDecorationPrefabs[Random.Range(0, outerDecorationPrefabs.Length)];
+                                Vector3 decorPosition = new Vector3(x * tileSize, 1f, y * tileSize);
+                                Quaternion decorRotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
+                                InstantiateTile(decorPrefab, decorPosition, decorRotation, Vector3.one);
+                            }
                         }
                     }
-
-                    InstantiateTile(prefabToUse, position, rotation, Vector3.one);
                 }
             }
         }
@@ -310,6 +412,8 @@ public class MapGenerator3 : MonoBehaviour
         int currentX = 0;
         int currentY = Random.Range(3, height - 3);
 
+        spawnPointGridCoord = new Vector2Int(currentX, currentY);
+
         Vector2Int moveDirection = Vector2Int.right;
         int stepsInDirection = 0;
         int stepsToTake = Random.Range(2, 5);
@@ -350,6 +454,8 @@ public class MapGenerator3 : MonoBehaviour
         // Akhir path
         grid[currentX, currentY] = TileType.Path;
         waypoints.Add(new Vector3(currentX * tileSize, 0, currentY * tileSize));
+        int finalX = currentX;
+        int finalY = currentY;
 
         if (Random.value > 0.5f)
         {
@@ -363,6 +469,9 @@ public class MapGenerator3 : MonoBehaviour
 
             grid[currentX + 2, currentY] = TileType.Path;
             waypoints.Add(new Vector3((currentX + 2) * tileSize, 0, currentY * tileSize));
+
+            finalX = currentX + 2;
+            finalY = currentY;
         }
         else
         {
@@ -372,7 +481,11 @@ public class MapGenerator3 : MonoBehaviour
 
             grid[currentX + 2, currentY] = TileType.Path;
             waypoints.Add(new Vector3((currentX + 2) * tileSize, 0, currentY * tileSize));
+
+            finalX = currentX + 2;
+            finalY = currentY;
         }
+        endPointGridCoord = new Vector2Int(finalX, finalY);
     }
 
     // =============================================

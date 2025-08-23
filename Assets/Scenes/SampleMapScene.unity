@@ -359,17 +359,50 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2594adc8e6480f6499922a9d61e0f507, type: 3}
+--- !u!1 &1802207229 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4756732779718767660, guid: 80b321ceeba064342970c01247582b8e, type: 3}
+  m_PrefabInstance: {fileID: 2134658307}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1896764914 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2163995162986490309, guid: 80b321ceeba064342970c01247582b8e, type: 3}
   m_PrefabInstance: {fileID: 2134658307}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1802207229}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea6d7dafdc3f62a4f93f5ae057cc6f5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1896764916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1802207229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64923e51d1c94a74d97077d733d6627e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  castlePrefab: {fileID: 3881640221407357785, guid: 23c6ac65fa6045d41b6a16d2b648322b, type: 3}
+  mapGenerator: {fileID: 1896764914}
+--- !u!114 &1896764917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1802207229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: def4bb4eae4860e4b8e738b5dfb28b67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gatePrefab: {fileID: 124269131230308488, guid: 2dc8e81551d882d439231a64468b00da, type: 3}
+  mapGenerator: {fileID: 1896764914}
 --- !u!114 &2108002277 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5737240287599912330, guid: ffbcbf97af0e02a4abaf083fec69386c, type: 3}
@@ -389,6 +422,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2163995162986490309, guid: 80b321ceeba064342970c01247582b8e, type: 3}
+      propertyPath: pathEndPrefab
+      value: 
+      objectReference: {fileID: 1946180478929042388, guid: 9ec446933e639d940b1fcf9a288d292e, type: 3}
+    - target: {fileID: 2163995162986490309, guid: 80b321ceeba064342970c01247582b8e, type: 3}
+      propertyPath: pathSpawnPrefab
+      value: 
+      objectReference: {fileID: 1946180478929042388, guid: 9ec446933e639d940b1fcf9a288d292e, type: 3}
+    - target: {fileID: 2163995162986490309, guid: 80b321ceeba064342970c01247582b8e, type: 3}
+      propertyPath: 'decorationPrefabs.Array.data[2]'
+      value: 
+      objectReference: {fileID: 7700689452156661862, guid: bbe12619dab6ab64280708647668cdca, type: 3}
     - target: {fileID: 4756732779718767660, guid: 80b321ceeba064342970c01247582b8e, type: 3}
       propertyPath: m_Name
       value: Map Generated
@@ -436,7 +481,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4756732779718767660, guid: 80b321ceeba064342970c01247582b8e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1896764916}
+    - targetCorrespondingSourceObject: {fileID: 4756732779718767660, guid: 80b321ceeba064342970c01247582b8e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1896764917}
   m_SourcePrefab: {fileID: 100100000, guid: 80b321ceeba064342970c01247582b8e, type: 3}
 --- !u!1001 &4003335983170904932
 PrefabInstance:
