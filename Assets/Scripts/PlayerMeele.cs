@@ -1,5 +1,4 @@
-﻿// PlayerMelee.cs (tambahkan field & gunakan multiplier)
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerMelee : MonoBehaviour
@@ -18,6 +17,9 @@ public class PlayerMelee : MonoBehaviour
 
     [Header("References")]
     public Animator animator;
+    public AudioSource audioSource;          // sumber audio
+    public AudioClip basicAttackSfx;         // suara basic attack
+    public AudioClip skillAttackSfx;         // suara skill
 
     // ⬇️ NEW
     private DebuffReceiver debuff;
@@ -25,6 +27,10 @@ public class PlayerMelee : MonoBehaviour
     void Awake()
     {
         debuff = GetComponent<DebuffReceiver>();
+
+        // kalau belum ada, auto-add AudioSource
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
     }
 
     void Update()
@@ -36,16 +42,16 @@ public class PlayerMelee : MonoBehaviour
         {
             BasicAttack();
 
-            float effectiveRate = attackRate * Mathf.Max(0.0001f, slowMul); // rate turun kalau slow < 1
+            float effectiveRate = attackRate * Mathf.Max(0.0001f, slowMul);
             nextAttackTime = Time.time + 1f / effectiveRate;
         }
 
-        // Skill Attack (Key Q) -> cooldown membesar saat di-slow
+        // Skill Attack (Key Q)
         if (Keyboard.current.qKey.wasPressedThisFrame && Time.time >= nextSkillTime)
         {
             SkillAttack();
 
-            float slowFactor = 1f / Mathf.Max(0.0001f, slowMul); // slow 0.2 => cooldown x5
+            float slowFactor = 1f / Mathf.Max(0.0001f, slowMul);
             nextSkillTime = Time.time + skillCooldown * slowFactor;
         }
     }
@@ -53,12 +59,17 @@ public class PlayerMelee : MonoBehaviour
     void BasicAttack()
     {
         animator.SetTrigger("Attack");
+
+        // 🔊 play sound
+        if (basicAttackSfx != null)
+            audioSource.PlayOneShot(basicAttackSfx);
+
         var enemies = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
         foreach (var e in enemies)
         {
             if (Vector3.Distance(transform.position, e.transform.position) <= attackRange)
             {
-                int finalDamage = Mathf.RoundToInt(damage * BuffManager.PlayerDamageMul); // buff global
+                int finalDamage = Mathf.RoundToInt(damage * BuffManager.PlayerDamageMul);
                 e.TakeDamage(finalDamage);
             }
         }
@@ -67,6 +78,11 @@ public class PlayerMelee : MonoBehaviour
     void SkillAttack()
     {
         animator.SetTrigger("Skill");
+
+        // 🔊 play sound
+        if (skillAttackSfx != null)
+            audioSource.PlayOneShot(skillAttackSfx);
+
         var enemies = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
         foreach (var e in enemies)
         {

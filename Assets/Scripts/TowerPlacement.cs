@@ -1,18 +1,29 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using TMPro; // untuk UI text (TextMeshPro)
 
 public class TowerPlacement : MonoBehaviour
 {
     [Header("Tower Settings")]
     public GameObject[] towerPrefabs;
     public int[] towerCosts;
-    public float placementRange = 5f; // jarak maksimal dari player
+    public float placementRange = 5f;
     public LayerMask groundMask;
+
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip placeTowerSfx;
+    public AudioClip notEnoughCoinsSfx;  // 🔊 dipakai juga untuk gagal jarak
+
+    [Header("UI Feedback")]
+    public TextMeshProUGUI warningText;  // 🔤 text untuk notif
+    public float warningDuration = 2f;   // lama munculnya text
 
     private int selected = -1;
     private Transform player;
     private LastBastion.Player.PlayerController playerController;
+
     public void SetPlayer(Transform newPlayer)
     {
         player = newPlayer;
@@ -21,15 +32,15 @@ public class TowerPlacement : MonoBehaviour
 
     IEnumerator Start()
     {
-        // tunggu sampai player muncul (karena spawn belakangan)
+        // cari player dulu
         while (player == null)
         {
             GameObject p = GameObject.FindGameObjectWithTag("Player");
             if (p != null)
             {
                 player = p.transform;
-                Debug.Log("✅ Player ditemukan di: " + player.position);
                 playerController = p.GetComponent<LastBastion.Player.PlayerController>();
+                Debug.Log("✅ Player ditemukan di: " + player.position);
             }
             yield return null;
         }
@@ -38,6 +49,12 @@ public class TowerPlacement : MonoBehaviour
         {
             Debug.LogWarning("⚠️ Tower prefabs belum diisi di Inspector.");
         }
+
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
+
+        if (warningText != null)
+            warningText.gameObject.SetActive(false); // sembunyikan awal
     }
 
     void Update()
@@ -59,7 +76,6 @@ public class TowerPlacement : MonoBehaviour
 
     public void SelectTower(int towerIndex)
     {
-        // Cek apakah index valid sesuai dengan jumlah tower prefab Anda
         if (towerIndex >= 0 && towerIndex < towerPrefabs.Length)
         {
             selected = towerIndex;
@@ -89,71 +105,67 @@ public class TowerPlacement : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, 200f, groundMask))
         {
-            if (!hit.collider.CompareTag("SnowTile"))
-            {
-                Debug.LogWarning("❌ Not a SnowTile (hit tag: " + hit.collider.tag + ")");
-                return;
-            }
+            if (!hit.collider.CompareTag("SnowTile")) return;
 
             SnowTile tile = hit.collider.GetComponent<SnowTile>();
-            if (tile == null)
-            {
-                Debug.LogWarning("❌ SnowTile component tidak ditemukan!");
-                return;
-            }
+            if (tile == null || tile.isOccupied) return;
 
-            if (tile.isOccupied)
-            {
-                Debug.LogWarning("❌ Tile sudah ditempati tower!");
-                return;
-            }
-
+            // 🔹 cek jarak
             float dist = Vector3.Distance(player.position, hit.point);
             if (dist > placementRange * BuffManager.PlacementRangeMul)
             {
-                Debug.LogWarning("❌ Too far from player. Distance: " + dist);
+                Debug.LogWarning($"❌ Terlalu jauh! Distance: {dist}");
+
+                if (notEnoughCoinsSfx != null && audioSource != null)
+                    audioSource.PlayOneShot(notEnoughCoinsSfx);
+
+                if (warningText != null)
+                    StartCoroutine(ShowWarning("Terlalu jauh untuk menempatkan tower!"));
+
                 return;
             }
 
-            // 1. Ambil harga tower yang dipilih
             int cost = towerCosts[selected];
 
-            // 2. Cek apakah pemain punya cukup koin
+            // 🔹 cek koin
             if (playerController.coinCount < cost)
             {
                 Debug.LogWarning($"❌ Koin tidak cukup! Butuh {cost}, hanya punya {playerController.coinCount}");
-                return; // Batalkan penempatan
+
+                if (notEnoughCoinsSfx != null && audioSource != null)
+                    audioSource.PlayOneShot(notEnoughCoinsSfx);
+
+                if (warningText != null)
+                    StartCoroutine(ShowWarning("Koin tidak cukup!"));
+
+                return;
             }
 
-            // 3. Jika koin cukup, kurangi koin pemain
-            playerController.SpendCoins(cost); // Kita akan buat fungsi ini di PlayerController
+            // ✅ jika cukup koin dan jarak oke → tempatkan tower
+            playerController.SpendCoins(cost);
 
-            // Ambil posisi tile
             Vector3 spawnPos = hit.collider.bounds.center;
             spawnPos.y += hit.collider.bounds.extents.y;
 
-            // Ambil prefab tower
             GameObject towerPrefab = towerPrefabs[selected];
             Collider towerCol = towerPrefab.GetComponent<Collider>();
-            if (towerCol != null)
-            {
-                spawnPos.y += towerCol.bounds.extents.y; // geser setengah tinggi tower
-            }
-            else
-            {
-                spawnPos.y += towerPrefab.transform.localScale.y / 2f;
-            }
+            spawnPos.y += towerCol ? towerCol.bounds.extents.y : towerPrefab.transform.localScale.y / 2f;
 
-            // Spawn tower
             Instantiate(towerPrefab, spawnPos, Quaternion.identity);
-            tile.isOccupied = true; // tandai tile sudah dipakai
+            tile.isOccupied = true;
             Debug.Log("🏰 Tower placed at " + spawnPos);
 
-
-        }
-        else
-        {
-            Debug.LogWarning("❌ Raycast miss");
+            if (placeTowerSfx != null && audioSource != null)
+                audioSource.PlayOneShot(placeTowerSfx);
         }
     }
+
+    IEnumerator ShowWarning(string msg)
+    {
+        warningText.text = msg;
+        warningText.gameObject.SetActive(true);
+        yield return new WaitForSeconds(warningDuration);
+        warningText.gameObject.SetActive(false);
+    }
 }
+    

@@ -180,6 +180,8 @@ MonoBehaviour:
   catapultArm: {fileID: 9079809936358224296}
   armRotateSpeed: 100
   armMaxAngle: 130
+  audioSource: {fileID: 0}
+  shootSFX: {fileID: 8300000, guid: 7c4e68d16dd65c64ab8118c6006e8eb0, type: 3}
 --- !u!114 &3572625212772075696
 MonoBehaviour:
   m_ObjectHideFlags: 0

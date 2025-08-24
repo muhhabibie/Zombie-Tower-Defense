@@ -12,6 +12,14 @@ public class Tower : MonoBehaviour
     [Header("Debuff")]
     public bool slowAffectsRotation = false; // opsional
 
+    [Header("Audio Settings")]
+    public AudioSource audioSource;
+    public AudioClip cannonShot;
+    public AudioClip ballistaShot;
+    public AudioClip catapultShot;
+    public AudioClip turretShot;
+    public TowerType towerType = TowerType.Cannon;
+
     private GameObject currentTarget;
     private DebuffReceiver debuff;
     private float fireProgress = 0f;         // model progress (stabil)
@@ -20,7 +28,6 @@ public class Tower : MonoBehaviour
 
     void Update()
     {
-        // dianggap “debuffed” kalau ada aura aktif
         bool debuffed = debuff && debuff.AttackSpeedMul < 0.999f;
 
         float effTurnSpeed = slowAffectsRotation
@@ -34,13 +41,12 @@ public class Tower : MonoBehaviour
         {
             RotateTower(currentTarget.transform, effTurnSpeed);
 
-            // 🔹 Fire rate turun sesuai multiplier aura (mis. 0.2 = 80% lebih lambat)
             float effFireRate = fireRate * (debuffed ? debuff.AttackSpeedMul : 1f);
 
             fireProgress += effFireRate * Time.deltaTime;
             if (fireProgress >= 1f)
             {
-                Shoot(currentTarget);     // ⬅️ tidak kirim/ubah apa pun di projectile
+                Shoot(currentTarget);
                 fireProgress -= 1f;
             }
         }
@@ -50,7 +56,6 @@ public class Tower : MonoBehaviour
         }
     }
 
-    // Saat debuff aktif, range efektif = MIN(baseRange, 10)
     float GetEffectiveRange(bool debuffed)
     {
         float baseRange = range * BuffManager.TowerAttackRangeMul;
@@ -90,15 +95,36 @@ public class Tower : MonoBehaviour
     void Shoot(GameObject target)
     {
         if (projectilePrefab == null || firePoints.Length == 0)
-        { Debug.LogWarning("⚠️ ProjectilePrefab/FirePoints belum di-assign!"); return; }
+        {
+            Debug.LogWarning("⚠️ ProjectilePrefab/FirePoints belum di-assign!");
+            return;
+        }
 
         foreach (var fp in firePoints)
         {
             var proj = Instantiate(projectilePrefab, fp.position, Quaternion.identity);
             var p = proj.GetComponent<Projectile>();
             if (p != null) p.SetTarget(target.transform, new Vector3(0f, 1f, 0f));
-            // ❌ tidak set damage/speed di projectile lagi
         }
+
+        PlayShootSound();
+    }
+
+    void PlayShootSound()
+    {
+        if (audioSource == null) return;
+
+        AudioClip clip = null;
+        switch (towerType)
+        {
+            case TowerType.Cannon: clip = cannonShot; break;
+            case TowerType.Ballista: clip = ballistaShot; break;
+            case TowerType.Catapult: clip = catapultShot; break;
+            case TowerType.Turret: clip = turretShot; break;
+        }
+
+        if (clip != null)
+            audioSource.PlayOneShot(clip);
     }
 
     void OnDrawGizmosSelected()
@@ -107,3 +133,5 @@ public class Tower : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, range);
     }
 }
+
+public enum TowerType { Cannon, Ballista, Catapult, Turret }

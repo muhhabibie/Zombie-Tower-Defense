@@ -11,10 +11,14 @@ public class CatapultTower : MonoBehaviour
     public float turnSpeed = 5f;
 
     [Header("Catapult Arm")]
-    public Transform towerBase;     // base yang berputar Y (body tower)
-    public Transform catapultArm;   // bagian lengan (pitch di X)
+    public Transform towerBase;
+    public Transform catapultArm;
     public float armRotateSpeed = 100f;
     public float armMaxAngle = 130f;
+
+    [Header("Audio")]
+    public AudioSource audioSource;     // komponen audio
+    public AudioClip shootSFX;          // suara tembakan
 
     private float fireCooldown = 0f;
     private GameObject currentTarget;
@@ -39,7 +43,6 @@ public class CatapultTower : MonoBehaviour
         }
         else
         {
-            // Tidak ada target → reset arm ke 0°
             if (!isAnimating && catapultArm.localEulerAngles.x != 0f)
                 catapultArm.localRotation = Quaternion.Euler(0f, 0f, 0f);
         }
@@ -71,7 +74,6 @@ public class CatapultTower : MonoBehaviour
         return bestTarget;
     }
 
-    // Putar tower base (Y axis only)
     void RotateTower(Transform target)
     {
         if (towerBase == null) towerBase = transform;
@@ -90,7 +92,6 @@ public class CatapultTower : MonoBehaviour
     {
         isAnimating = true;
 
-        // Naikkan arm ke armMaxAngle (smooth, tanpa overshoot)
         float elapsedUp = 0f;
         float durationUp = armMaxAngle / armRotateSpeed;
         while (elapsedUp < durationUp)
@@ -103,10 +104,9 @@ public class CatapultTower : MonoBehaviour
         }
         catapultArm.localRotation = Quaternion.Euler(armMaxAngle, 0f, 0f);
 
-        // Tembak di puncak rotasi
+        // Tembak + mainkan suara
         Shoot(currentTarget);
 
-        // Turunkan arm kembali ke 0° (smooth)
         float elapsedDown = 0f;
         float durationDown = 0.5f;
         while (elapsedDown < durationDown)
@@ -133,6 +133,10 @@ public class CatapultTower : MonoBehaviour
             if (p != null)
                 p.SetTarget(target.transform, new Vector3(0f, 1f, 0f));
         }
+
+        // Play sound effect sekali tiap tembakan
+        if (audioSource != null && shootSFX != null)
+            audioSource.PlayOneShot(shootSFX);
     }
 
     void OnDrawGizmosSelected()

@@ -1,3 +1,4 @@
+﻿using LastBastion.Core;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,15 +8,15 @@ public class EnemyMovement : MonoBehaviour
     private List<Vector3> waypoints;
     private int currentWaypointIndex = 0;
 
+    [Header("Movement Settings")]
     public float speed = 2f;
+
     private Animator animator;
     private bool isSpawning = true;
 
-    // Lama animasi spawn
-    public float spawnAnimationDuration = 1.3f;
-
-    // Offset Y saat spawn
-    public float spawnYOffset = 2f;
+    [Header("Spawn Settings")]
+    public float spawnAnimationDuration = 1.3f; // Lama animasi spawn
+    public float spawnYOffset = 2f;             // Offset Y saat spawn
 
     private Rigidbody rb;
 
@@ -26,7 +27,7 @@ public class EnemyMovement : MonoBehaviour
 
         if (rb != null)
         {
-            rb.isKinematic = true; // biar tidak gangguan physics
+            rb.isKinematic = true; // Supaya tidak ganggu physics
         }
     }
 
@@ -37,7 +38,7 @@ public class EnemyMovement : MonoBehaviour
 
         if (waypoints.Count > 0)
         {
-            // posisi spawn dengan offset Y
+            // Posisi spawn dengan offset Y
             Vector3 spawnPos = waypoints[0];
             spawnPos.y = 0.58f + spawnYOffset;
             transform.position = spawnPos;
@@ -105,11 +106,16 @@ public class EnemyMovement : MonoBehaviour
         {
             currentWaypointIndex++;
 
-            // jika sudah di waypoint terakhir -> hancurkan musuh
             if (currentWaypointIndex >= waypoints.Count)
             {
+                if (GameManager.Instance != null)
+                {
+                    GameManager.Instance.TriggerDefeat(); // pusatkan di GameManager
+                }
+
                 Destroy(gameObject);
             }
+
         }
     }
 }

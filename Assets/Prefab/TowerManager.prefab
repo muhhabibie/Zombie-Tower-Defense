@@ -49,7 +49,13 @@ MonoBehaviour:
   - {fileID: 6315943857820321175, guid: 57b04e1bcba80954084300684e0f377f, type: 3}
   - {fileID: 3970237311967688180, guid: 3c8fa253f0fd2704fa961e248ffa5a7c, type: 3}
   - {fileID: 4700223232606550521, guid: 858ae3eab1641744d8103a8a4606ff22, type: 3}
+  towerCosts: 
   placementRange: 5
   groundMask:
     serializedVersion: 2
     m_Bits: 64
+  audioSource: {fileID: 0}
+  placeTowerSfx: {fileID: 8300000, guid: e2e83defe20aa9f4a8d59dd73533f0e3, type: 3}
+  notEnoughCoinsSfx: {fileID: 8300000, guid: ca2238dbe04a4be4ea4051b2bda049b3, type: 3}
+  warningText: {fileID: 0}
+  warningDuration: 2

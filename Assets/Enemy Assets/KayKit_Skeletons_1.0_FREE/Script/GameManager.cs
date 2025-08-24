@@ -101,6 +101,12 @@ namespace LastBastion.Core
             phase = GamePhase.Defeat;
             hud?.SetPhase("Defeat");
             OnDefeat?.Invoke();
+
+            if (GameUIOver.Instance != null)
+            {
+                GameUIOver.Instance.GameOver();
+            }
         }
+
     }
 }

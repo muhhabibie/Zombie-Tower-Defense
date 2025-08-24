@@ -191,6 +191,13 @@ MonoBehaviour:
   - {fileID: 4758763379714282218}
   - {fileID: 4270098490692886553}
   turnSpeed: 5
+  slowAffectsRotation: 0
+  audioSource: {fileID: 0}
+  cannonShot: {fileID: 0}
+  ballistaShot: {fileID: 0}
+  catapultShot: {fileID: 0}
+  turretShot: {fileID: 8300000, guid: 7c4e68d16dd65c64ab8118c6006e8eb0, type: 3}
+  towerType: 0
 --- !u!114 &-1427439374480354970
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1558,6 +1558,9 @@ MonoBehaviour:
   skillDamage: 60
   skillCooldown: 5
   animator: {fileID: 5258668535118213087}
+  audioSource: {fileID: 0}
+  basicAttackSfx: {fileID: 8300000, guid: 88b1cbe3caa3fee4b8b103b5edd7aba9, type: 3}
+  skillAttackSfx: {fileID: 8300000, guid: 21c4a490b24ba2045bc815f7626a40ef, type: 3}
 --- !u!114 &-9098608293578955698
 MonoBehaviour:
   m_ObjectHideFlags: 0
