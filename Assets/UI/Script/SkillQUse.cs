@@ -1,49 +1,32 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
+using System.Collections;
+using TMPro; // Pastikan namespace ini ada
 
 public class SkillQUse : MonoBehaviour
 {
-    [Header("Referensi Visual")]
-    public Sprite defaultSprite;    // Sprite saat skill siap (akan menjadi pengisi)
-    public Sprite selectedSprite;   // Sprite saat skill cooldown (akan menjadi latar)
-
-    [Header("Komponen UI")]
-    public Image backgroundImage;  // Komponen Image dari objek utama (Skill_Q_Icon)
-    public Image fillImage;        // Komponen Image dari objek anak (Fill_Image)
-
     [Header("Pengaturan Cooldown")]
     [Tooltip("Isi durasi cooldown skill di sini. HARUS SAMA dengan cooldown di Player.")]
     public float skillCooldown = 5f;
     private float nextSkillTime = 0f;
 
+    [Header("Referensi Visual")]
+    public Sprite defaultSprite;
+    public Sprite selectedSprite;
+    public Image skillIconImage; // Hanya satu image sekarang
+    public TextMeshProUGUI cooldownText;
+
     void Start()
     {
-        void Update()
-        {
-            if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame)
-            {
-                Debug.Log("Tombol Q Ditekan!"); // Penanda 1: Cek input
-
-                if (Time.time >= nextSkillTime)
-                {
-                    Debug.Log("Cooldown Selesai! Memulai efek visual."); // Penanda 2: Cek timer
-
-                    nextSkillTime = Time.time + skillCooldown;
-                    StartCoroutine(CooldownRoutine(skillCooldown));
-                }
-                else
-                {
-                    Debug.Log("Skill masih dalam cooldown."); // Penanda 3: Jika masih cooldown
-                }
-            }
-        }
+        // Pastikan UI dalam keadaan siap
+        if (skillIconImage != null) skillIconImage.sprite = defaultSprite;
+        if (cooldownText != null) cooldownText.gameObject.SetActive(false);
     }
 
     void Update()
     {
-        // Cek input menggunakan Input System yang baru
+        // Cek input keyboard untuk tombol 'Q'
         if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame)
         {
             // Cek apakah skill sudah siap digunakan (tidak sedang cooldown)
@@ -58,22 +41,21 @@ public class SkillQUse : MonoBehaviour
 
     private IEnumerator CooldownRoutine(float duration)
     {
-        // 1. Atur keadaan cooldown
-        backgroundImage.sprite = selectedSprite; // Latar berubah menjadi sprite cooldown
-        fillImage.sprite = defaultSprite;       // Gambar pengisi adalah sprite 'siap'
-        fillImage.fillAmount = 0;              // Mulai mengisi dari nol
+        // 1. Ubah sprite & tampilkan teks
+        skillIconImage.sprite = selectedSprite;
+        cooldownText.gameObject.SetActive(true);
 
-        // 2. Jalankan timer visual
-        float timer = 0f;
-        while (timer < duration)
+        float timer = duration;
+        while (timer > 0)
         {
-            fillImage.fillAmount = timer / duration; // Isi dari 0 ke 1 seiring waktu
-            timer += Time.deltaTime;
-            yield return null;
+            // Update teks hitung mundur
+            cooldownText.text = Mathf.Ceil(timer).ToString();
+            timer -= Time.deltaTime;
+            yield return null; // Tunggu frame berikutnya
         }
 
-        // 3. Kembalikan ke keadaan siap
-        fillImage.fillAmount = 0; // Sembunyikan lagi gambar pengisi
-        backgroundImage.sprite = defaultSprite; // Latar kembali normal
+        // 2. Kembalikan ke status siap
+        cooldownText.gameObject.SetActive(false);
+        skillIconImage.sprite = defaultSprite;
     }
 }
