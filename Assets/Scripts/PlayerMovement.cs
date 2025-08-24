@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using TMPro;
 
 namespace LastBastion.Player
 {
@@ -25,6 +26,7 @@ namespace LastBastion.Player
 
         [Header("Coins")]
         public int coinCount = 0; // jumlah koin yang dimiliki player
+        public TextMeshProUGUI coinTextUI;
 
         private CharacterController controller;
         private Vector3 velocity;
@@ -40,6 +42,10 @@ namespace LastBastion.Player
         private InputAction moveAction;
         private InputAction dashAction;
 
+        private void Start()
+        {
+            UpdateCoinUI();
+        }
         private void Awake()
         {
             controller = GetComponent<CharacterController>();
@@ -53,6 +59,17 @@ namespace LastBastion.Player
 
             if (health == null) health = GetComponent<Health>();
             if (animator == null) animator = GetComponentInChildren<Animator>();
+ 
+            GameObject coinTextObject = GameObject.Find("Coin Text");
+
+            if (coinTextObject != null)
+            {
+                coinTextUI = coinTextObject.GetComponent<TextMeshProUGUI>();
+            }
+            if (coinTextUI == null)
+            {
+                Debug.LogError("Tidak bisa menemukan komponen TextMeshProUGUI pada objek bernama 'Coin Text'!");
+            }
         }
 
         private void Update()
@@ -156,7 +173,16 @@ namespace LastBastion.Player
             {
                 coinCount++;
                 Debug.Log($"Coin collected! Total coins: {coinCount}");
+                UpdateCoinUI();
                 Destroy(other.gameObject); // hapus koin
+            }
+        }
+
+        private void UpdateCoinUI()
+        {
+            if (coinTextUI != null)
+            {
+                coinTextUI.text = coinCount.ToString();
             }
         }
     }
