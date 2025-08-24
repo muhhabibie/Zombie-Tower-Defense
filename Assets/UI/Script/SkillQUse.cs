@@ -1,8 +1,9 @@
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.InputSystem;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro; // Pastikan namespace ini ada
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class SkillQUse : MonoBehaviour
 {
@@ -14,18 +15,32 @@ public class SkillQUse : MonoBehaviour
     [Header("Referensi Visual")]
     public Sprite defaultSprite;
     public Sprite selectedSprite;
+
+    [Header("Referensi Komponen")]
     public Image skillIconImage; // Hanya satu image sekarang
     public TextMeshProUGUI cooldownText;
-
+    public List<Button> skillButton;
     void Start()
     {
         // Pastikan UI dalam keadaan siap
         if (skillIconImage != null) skillIconImage.sprite = defaultSprite;
         if (cooldownText != null) cooldownText.gameObject.SetActive(false);
+        SetButtonsInteractable(true);
     }
 
     void Update()
     {
+        if (PauseMenu.GameIsPaused)
+        {
+            // Jika game dijeda, buat semua tombol TIDAK BISA DIKLIK
+            SetButtonsInteractable(false);
+            return; // Keluar agar input keyboard juga tidak berfungsi
+        }
+        else
+        {
+            // Jika game tidak dijeda, buat semua tombol BISA DIKLIK KEMBALI
+            SetButtonsInteractable(true);
+        }
         // Cek input keyboard untuk tombol 'Q'
         if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame)
         {
@@ -39,6 +54,15 @@ public class SkillQUse : MonoBehaviour
         }
     }
 
+    void SetButtonsInteractable(bool isInteractable)
+    {
+        // Loop melalui setiap tombol di dalam daftar
+        foreach (Button btn in skillButton)
+        {
+            // Atur status interactable-nya
+            btn.interactable = isInteractable;
+        }
+    }
     private IEnumerator CooldownRoutine(float duration)
     {
         // 1. Ubah sprite & tampilkan teks

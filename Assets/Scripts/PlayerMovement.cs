@@ -28,6 +28,7 @@ namespace LastBastion.Player
         public int coinCount = 0;
         public TextMeshProUGUI coinTextUI;
 
+
         private CharacterController controller;
         private Vector3 velocity;
         private bool isGrounded;
@@ -185,7 +186,7 @@ namespace LastBastion.Player
         {
             if (other.CompareTag("Coin"))
             {
-                coinCount++;
+                coinCount+=10;
                 Debug.Log($"Coin collected! Total coins: {coinCount}");
                 UpdateCoinUI();
                 Destroy(other.gameObject);
@@ -198,6 +199,13 @@ namespace LastBastion.Player
             {
                 coinTextUI.text = coinCount.ToString();
             }
+        }
+
+        public void SpendCoins(int amount)
+        {
+            coinCount -= amount;
+            // Panggil fungsi update UI agar tampilan koin di layar juga berkurang
+            UpdateCoinUI();
         }
     }
 }
