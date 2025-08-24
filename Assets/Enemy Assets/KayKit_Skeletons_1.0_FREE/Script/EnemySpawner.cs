@@ -46,8 +46,8 @@ public class EnemySpawner : MonoBehaviour
         while (true)
         {
             // Update enemy scaling (GLOBAL)
-            CurrentEnemyHpMul    = 1f + (currentRound - 1) * 0.10f;
-            CurrentEnemySpeedMul = 1f + (currentRound - 1) * 0.05f;
+            CurrentEnemyHpMul    = 1f + (currentRound - 1) * 0.12f;
+            CurrentEnemySpeedMul = 1f + (currentRound - 1) * 0.03f;
             Debug.Log($"=== Start Round {currentRound} === [HPx{CurrentEnemyHpMul:F2}, SPDx{CurrentEnemySpeedMul:F2}]");
 
             currentWave = 0;
