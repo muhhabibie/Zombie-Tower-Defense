@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86c78b43fa5f68742b7c95977c616c31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coinPrefab: {fileID: 0}
+  coinPrefab: {fileID: 1748845262621335304, guid: c422bbcdfd2eab04fae0c3708572de19, type: 3}
   coinsToDrop: 1
 --- !u!114 &-281147006244537702
 MonoBehaviour:

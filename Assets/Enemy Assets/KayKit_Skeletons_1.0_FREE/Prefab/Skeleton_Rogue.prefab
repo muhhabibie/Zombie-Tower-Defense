@@ -130,7 +130,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7fe9ccd93b8f6944999ba52555c5591, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseHP: 100
+  baseHP: 200
   baseSpeed: 2
   maxHP: 0
   speed: 0
@@ -146,7 +146,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86c78b43fa5f68742b7c95977c616c31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coinPrefab: {fileID: 0}
+  coinPrefab: {fileID: 1748845262621335304, guid: c422bbcdfd2eab04fae0c3708572de19, type: 3}
   coinsToDrop: 1
 --- !u!114 &4885138177109394761
 MonoBehaviour:
