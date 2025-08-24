@@ -6,12 +6,13 @@ public class TowerPlacement : MonoBehaviour
 {
     [Header("Tower Settings")]
     public GameObject[] towerPrefabs;
+    public int[] towerCosts;
     public float placementRange = 5f; // jarak maksimal dari player
     public LayerMask groundMask;
 
     private int selected = -1;
     private Transform player;
-
+    private LastBastion.Player.PlayerController playerController;
     public void SetPlayer(Transform newPlayer)
     {
         player = newPlayer;
@@ -28,6 +29,7 @@ public class TowerPlacement : MonoBehaviour
             {
                 player = p.transform;
                 Debug.Log("✅ Player ditemukan di: " + player.position);
+                playerController = p.GetComponent<LastBastion.Player.PlayerController>();
             }
             yield return null;
         }
@@ -52,6 +54,20 @@ public class TowerPlacement : MonoBehaviour
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
             TryPlace();
+        }
+    }
+
+    public void SelectTower(int towerIndex)
+    {
+        // Cek apakah index valid sesuai dengan jumlah tower prefab Anda
+        if (towerIndex >= 0 && towerIndex < towerPrefabs.Length)
+        {
+            selected = towerIndex;
+            Debug.Log($"✅ Tower {towerIndex + 1} dipilih melalui tombol UI.");
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ Indeks tower {towerIndex} tidak valid!");
         }
     }
 
@@ -99,6 +115,19 @@ public class TowerPlacement : MonoBehaviour
                 return;
             }
 
+            // 1. Ambil harga tower yang dipilih
+            int cost = towerCosts[selected];
+
+            // 2. Cek apakah pemain punya cukup koin
+            if (playerController.coinCount < cost)
+            {
+                Debug.LogWarning($"❌ Koin tidak cukup! Butuh {cost}, hanya punya {playerController.coinCount}");
+                return; // Batalkan penempatan
+            }
+
+            // 3. Jika koin cukup, kurangi koin pemain
+            playerController.SpendCoins(cost); // Kita akan buat fungsi ini di PlayerController
+
             // Ambil posisi tile
             Vector3 spawnPos = hit.collider.bounds.center;
             spawnPos.y += hit.collider.bounds.extents.y;
@@ -119,6 +148,8 @@ public class TowerPlacement : MonoBehaviour
             Instantiate(towerPrefab, spawnPos, Quaternion.identity);
             tile.isOccupied = true; // tandai tile sudah dipakai
             Debug.Log("🏰 Tower placed at " + spawnPos);
+
+
         }
         else
         {
