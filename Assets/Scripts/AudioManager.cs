@@ -8,6 +8,9 @@ public class AudioManager : MonoBehaviour
     public AudioSource sfxSource;
     public AudioSource musicSource;
 
+    [Range(0f, 1f)]
+    public float musicVolume = 0.3f; // volume musik default 30%
+
     void Awake()
     {
         // Singleton
@@ -19,6 +22,12 @@ public class AudioManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+        }
+
+        // Set volume musik saat start
+        if (musicSource != null)
+        {
+            musicSource.volume = musicVolume;
         }
     }
 
@@ -34,6 +43,7 @@ public class AudioManager : MonoBehaviour
         {
             musicSource.clip = clip;
             musicSource.loop = loop;
+            musicSource.volume = musicVolume; // pastikan volume sesuai
             musicSource.Play();
         }
     }

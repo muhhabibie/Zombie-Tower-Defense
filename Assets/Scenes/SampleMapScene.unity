@@ -278,6 +278,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c6834defd118194d99ca9ba63794c47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!82 &1166288011 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 2853603192675858754, guid: 4b5c6990a7b1a254596c6e0e782ea5c3, type: 3}
+  m_PrefabInstance: {fileID: 358631920827427759}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1169234192
 GameObject:
   m_ObjectHideFlags: 0
@@ -712,6 +717,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: AudioManager
       objectReference: {fileID: 0}
+    - target: {fileID: 8560718555904357487, guid: 4b5c6990a7b1a254596c6e0e782ea5c3, type: 3}
+      propertyPath: sfxSource
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8560718555904357487, guid: 4b5c6990a7b1a254596c6e0e782ea5c3, type: 3}
+      propertyPath: musicSource
+      value: 
+      objectReference: {fileID: 1166288011}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1476,6 +1489,14 @@ PrefabInstance:
       propertyPath: gameOverUI
       value: 
       objectReference: {fileID: 1790045339}
+    - target: {fileID: 2258219382473871485, guid: 9a7046ac3806f9240aa336e769a02851, type: 3}
+      propertyPath: gameOverSound
+      value: 
+      objectReference: {fileID: 8300000, guid: feb9ba5325449f141bfe605cdebd62db, type: 3}
+    - target: {fileID: 2258219382473871485, guid: 9a7046ac3806f9240aa336e769a02851, type: 3}
+      propertyPath: gameplayMusicClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 78a86950f3b544ed48fc0316c76d68ea, type: 3}
     - target: {fileID: 3834602933091789015, guid: 9a7046ac3806f9240aa336e769a02851, type: 3}
       propertyPath: m_LocalPosition.x
       value: 6280.766
