@@ -25,9 +25,9 @@ public class GameUIOver : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    public void QuitGame()
+    public void LoadMenu()
     {
-        Debug.Log("Quit Game!");
-        Application.Quit();
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
     }
 }
