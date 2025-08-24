@@ -90,4 +90,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 30
-  damage: 7
+  damage: 6
+  auraProbeRadius: 0.1
+  auraMask:
+    serializedVersion: 2
+    m_Bits: 4294967295

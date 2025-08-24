@@ -170,8 +170,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17802f3b02bc6d644aae19141d472751, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  range: 50
-  fireRate: 0.5
+  range: 45
+  fireRate: 0.6
   projectilePrefab: {fileID: 2263305782355005093, guid: f87fe6a4fe2546d4fa33502b1e78353c, type: 3}
   firePoints:
   - {fileID: 6958322635408267801}

@@ -150,12 +150,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6571a428dcdb1f048b7d210252e2a08b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  range: 10
+  range: 12
   fireRate: 1
   projectilePrefab: {fileID: 6717051931103744762, guid: 4b527c2c083e436409fcf256479e0d26, type: 3}
   firePoints:
   - {fileID: 9209952916852951063}
   turnSpeed: 5
+  slowAffectsRotation: 0
+  audioSource: {fileID: 0}
+  cannonShot: {fileID: 0}
+  ballistaShot: {fileID: 0}
+  catapultShot: {fileID: 0}
+  turretShot: {fileID: 0}
+  towerType: 0
 --- !u!114 &7580441555985905208
 MonoBehaviour:
   m_ObjectHideFlags: 0
