@@ -52,6 +52,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Skeleton_Warrior
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: bfe4da6d0f5abca4bb36dc3215b2725f, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -68,6 +72,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bfe4da6d0f5abca4bb36dc3215b2725f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 9201860468367962136}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bfe4da6d0f5abca4bb36dc3215b2725f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -4426011721663552487}
   m_SourcePrefab: {fileID: 100100000, guid: bfe4da6d0f5abca4bb36dc3215b2725f, type: 3}
 --- !u!1 &7856169670596332171 stripped
 GameObject:
@@ -137,5 +144,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 86c78b43fa5f68742b7c95977c616c31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  coinPrefab: {fileID: 0}
+  coinsToDrop: 1
+--- !u!114 &-4426011721663552487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7856169670596332171}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39a44a3dbd831654cb2eac9b8c216d36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
