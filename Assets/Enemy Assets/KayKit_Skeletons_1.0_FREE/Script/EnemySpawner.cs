@@ -116,9 +116,9 @@ public class EnemySpawner : MonoBehaviour
 
     GameObject ChooseEnemyType()
     {
-        if (currentRound <= 5) return normalEnemyPrefab;
-        if (currentRound <= 8) return Random.Range(0, 100) < 70 ? normalEnemyPrefab : fastEnemyPrefab;
-        if (currentRound <= 12)
+        if (currentRound <= 2) return normalEnemyPrefab;
+        if (currentRound <= 4) return Random.Range(0, 100) < 70 ? normalEnemyPrefab : fastEnemyPrefab;
+        if (currentRound <= 6)
         {
             int r = Random.Range(0, 100);
             if (r < 50) return normalEnemyPrefab;
