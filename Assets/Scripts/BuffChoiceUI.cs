@@ -11,15 +11,32 @@ public class BuffChoiceUI : MonoBehaviour
     {
         public Button button;
         public TextMeshProUGUI label;
+        public Image backgroundImage;
+    }
+
+    [System.Serializable]
+    public class BuffVisual
+    {
+        public BuffType buffType;
+        public Sprite backgroundSprite;
     }
 
     public ChoiceWidget[] choices = new ChoiceWidget[3];
 
     Action<BuffType> onPicked;
     List<BuffType> current;
-
+    public List<BuffVisual> buffVisuals;
+    private Dictionary<BuffType, Sprite> buffVisualsDictionary;
     void Awake()
     {
+        buffVisualsDictionary = new Dictionary<BuffType, Sprite>();
+        foreach (var visual in buffVisuals)
+        {
+            if (!buffVisualsDictionary.ContainsKey(visual.buffType))
+            {
+                buffVisualsDictionary.Add(visual.buffType, visual.backgroundSprite);
+            }
+        }
         for (int i = 0; i < choices.Length; i++)
         {
             int idx = i;
@@ -38,8 +55,21 @@ public class BuffChoiceUI : MonoBehaviour
         {
             bool active = i < options.Count;
             choices[i].button.gameObject.SetActive(active);
-            if (active && choices[i].label != null)
-                choices[i].label.text = PrettyName(options[i]);
+            if (active)
+            {
+                BuffType currentBuff = options[i];
+
+                // Set Teks (seperti sebelumnya)
+                if (choices[i].label != null)
+                    choices[i].label.text = PrettyName(currentBuff);
+
+                // --- LOGIKA BARU: Set Background ---
+                if (choices[i].backgroundImage != null && buffVisualsDictionary.ContainsKey(currentBuff))
+                {
+                    // Ambil sprite dari dictionary dan terapkan ke background
+                    choices[i].backgroundImage.sprite = buffVisualsDictionary[currentBuff];
+                }
+            }
         }
         gameObject.SetActive(true);
     }
