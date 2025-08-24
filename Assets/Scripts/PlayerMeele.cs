@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿// PlayerMelee.cs (tambahkan field & gunakan multiplier)
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerMelee : MonoBehaviour
@@ -6,77 +7,80 @@ public class PlayerMelee : MonoBehaviour
     [Header("Basic Attack")]
     public float attackRange = 2f;
     public int damage = 25;
-    public float attackRate = 1f;
+    public float attackRate = 1f;     // serangan per detik
     private float nextAttackTime = 0f;
 
     [Header("Skill Attack")]
     public float skillRange = 2.5f;
     public int skillDamage = 60;
-    public float skillCooldown = 5f;
+    public float skillCooldown = 5f;  // detik
     private float nextSkillTime = 0f;
 
     [Header("References")]
     public Animator animator;
 
+    // ⬇️ NEW
+    private DebuffReceiver debuff;
+
+    void Awake()
+    {
+        debuff = GetComponent<DebuffReceiver>();
+    }
+
     void Update()
     {
+        float slowMul = debuff ? debuff.AttackSpeedMul : 1f; // 0..1
+
         // Basic Attack (Left Mouse)
         if (Mouse.current.leftButton.wasPressedThisFrame && Time.time >= nextAttackTime)
         {
             BasicAttack();
-            nextAttackTime = Time.time + 1f / attackRate;
+
+            float effectiveRate = attackRate * Mathf.Max(0.0001f, slowMul); // rate turun kalau slow < 1
+            nextAttackTime = Time.time + 1f / effectiveRate;
         }
 
-        // Skill Attack (Key Q)
+        // Skill Attack (Key Q) -> cooldown membesar saat di-slow
         if (Keyboard.current.qKey.wasPressedThisFrame && Time.time >= nextSkillTime)
         {
             SkillAttack();
-            nextSkillTime = Time.time + skillCooldown;
+
+            float slowFactor = 1f / Mathf.Max(0.0001f, slowMul); // slow 0.2 => cooldown x5
+            nextSkillTime = Time.time + skillCooldown * slowFactor;
         }
     }
 
     void BasicAttack()
     {
-        Debug.Log("Basic Attack!");
         animator.SetTrigger("Attack");
-
-        Enemy[] enemies = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
-        foreach (Enemy e in enemies)
+        var enemies = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+        foreach (var e in enemies)
         {
-            float dist = Vector3.Distance(transform.position, e.transform.position);
-            if (dist <= attackRange)
+            if (Vector3.Distance(transform.position, e.transform.position) <= attackRange)
             {
-                e.TakeDamage(damage);
-                Debug.Log($"{e.name} kena Basic Attack, -{damage} HP, sisa HP: {e.GetCurrentHP()}");
+                int finalDamage = Mathf.RoundToInt(damage * BuffManager.PlayerDamageMul); // buff global
+                e.TakeDamage(finalDamage);
             }
         }
     }
 
     void SkillAttack()
     {
-        Debug.Log("Skill Attack!");
         animator.SetTrigger("Skill");
-
-        Enemy[] enemies = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
-        foreach (Enemy e in enemies)
+        var enemies = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+        foreach (var e in enemies)
         {
-            float dist = Vector3.Distance(transform.position, e.transform.position);
-            if (dist <= skillRange)
+            if (Vector3.Distance(transform.position, e.transform.position) <= skillRange)
             {
-                e.TakeDamage(skillDamage);
-                Debug.Log($"{e.name} kena Skill Attack, -{skillDamage} HP, sisa HP: {e.GetCurrentHP()}");
+                int finalDamage = Mathf.RoundToInt(skillDamage * BuffManager.PlayerDamageMul);
+                e.TakeDamage(finalDamage);
             }
         }
     }
 
     void OnDrawGizmosSelected()
     {
-        // Range Basic
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
-
-        // Range Skill
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, skillRange);
+        Gizmos.color = Color.red; Gizmos.DrawWireSphere(transform.position, attackRange);
+        Gizmos.color = Color.blue; Gizmos.DrawWireSphere(transform.position, skillRange);
     }
 }

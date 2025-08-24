@@ -3,98 +3,101 @@ using UnityEngine;
 public class Tower : MonoBehaviour
 {
     [Header("Tower Settings")]
-    public float range = 5f;                // jangkauan serangan
-    public float fireRate = 1f;             // peluru per detik
-    public GameObject projectilePrefab;     // prefab peluru
-    public Transform[] firePoints;          // 🔥 Bisa 2 atau lebih firepoint
-    public float turnSpeed = 5f;            // kecepatan rotasi
+    public float range = 5f;
+    public float fireRate = 1f;              // shots per second
+    public GameObject projectilePrefab;
+    public Transform[] firePoints;
+    public float turnSpeed = 5f;
 
-    private float fireCooldown = 0f;        // timer cooldown
-    private GameObject currentTarget;       // target musuh saat ini
+    [Header("Debuff")]
+    public bool slowAffectsRotation = false; // opsional
+
+    private GameObject currentTarget;
+    private DebuffReceiver debuff;
+    private float fireProgress = 0f;         // model progress (stabil)
+
+    void Awake() => debuff = GetComponent<DebuffReceiver>();
 
     void Update()
     {
-        fireCooldown -= Time.deltaTime;
+        // dianggap “debuffed” kalau ada aura aktif
+        bool debuffed = debuff && debuff.AttackSpeedMul < 0.999f;
 
-        // Cek kondisi target
-        if (currentTarget == null || !IsTargetValid(currentTarget))
-        {
-            currentTarget = GetNewTarget();
-        }
+        float effTurnSpeed = slowAffectsRotation
+            ? turnSpeed * Mathf.Clamp(debuff ? debuff.AttackSpeedMul : 1f, 0.02f, 1f)
+            : turnSpeed;
 
-        // 🔄 Putar tower kalau ada target
+        if (currentTarget == null || !IsTargetValid(currentTarget, debuffed))
+            currentTarget = GetNewTarget(debuffed);
+
         if (currentTarget != null)
         {
-            RotateTower(currentTarget.transform);
+            RotateTower(currentTarget.transform, effTurnSpeed);
 
-            if (fireCooldown <= 0f)
+            // 🔹 Fire rate turun sesuai multiplier aura (mis. 0.2 = 80% lebih lambat)
+            float effFireRate = fireRate * (debuffed ? debuff.AttackSpeedMul : 1f);
+
+            fireProgress += effFireRate * Time.deltaTime;
+            if (fireProgress >= 1f)
             {
-                Shoot(currentTarget);
-                fireCooldown = 1f / fireRate; // reset cooldown
+                Shoot(currentTarget);     // ⬅️ tidak kirim/ubah apa pun di projectile
+                fireProgress -= 1f;
             }
+        }
+        else
+        {
+            fireProgress = Mathf.Clamp01(fireProgress - Time.deltaTime);
         }
     }
 
-    // 🔍 Cek apakah target masih valid
-    bool IsTargetValid(GameObject target)
+    // Saat debuff aktif, range efektif = MIN(baseRange, 10)
+    float GetEffectiveRange(bool debuffed)
+    {
+        float baseRange = range * BuffManager.TowerAttackRangeMul;
+        return debuffed ? Mathf.Min(baseRange, 10f) : baseRange;
+    }
+
+    bool IsTargetValid(GameObject target, bool debuffed)
     {
         if (target == null) return false;
-
+        float effRange = GetEffectiveRange(debuffed);
         float dist = Vector3.Distance(transform.position, target.transform.position);
-        return dist <= range;
+        return dist <= effRange;
     }
 
-    // 🎯 Ambil musuh baru kalau target lama mati / keluar range
-    GameObject GetNewTarget()
+    GameObject GetNewTarget(bool debuffed)
     {
         Enemy[] enemies = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+        GameObject best = null; float shortest = Mathf.Infinity;
+        float effRange = GetEffectiveRange(debuffed);
 
-        GameObject bestTarget = null;
-        float shortestDist = Mathf.Infinity;
-
-        foreach (Enemy e in enemies)
+        foreach (var e in enemies)
         {
-            Vector3 targetPos = e.transform.position + new Vector3(0f, 1f, 0f); // offset Y
-            float dist = Vector3.Distance(transform.position, targetPos);
-            if (dist <= range)
-            {
-                if (dist < shortestDist)
-                {
-                    shortestDist = dist;
-                    bestTarget = e.gameObject;
-                }
-            }
+            Vector3 pos = e.transform.position + new Vector3(0f, 1f, 0f);
+            float d = Vector3.Distance(transform.position, pos);
+            if (d <= effRange && d < shortest) { shortest = d; best = e.gameObject; }
         }
-
-        return bestTarget;
+        return best;
     }
 
-    void RotateTower(Transform target)
+    void RotateTower(Transform target, float effTurnSpeed)
     {
-        Vector3 dir = target.position - transform.position;
-        dir.y = 0f; // biar rotasi hanya di sumbu Y (tidak miring ke atas/bawah)
-
-        Quaternion lookRot = Quaternion.LookRotation(dir);
-        transform.rotation = Quaternion.Lerp(transform.rotation, lookRot, Time.deltaTime * turnSpeed);
+        Vector3 dir = target.position - transform.position; dir.y = 0f;
+        var lookRot = Quaternion.LookRotation(dir);
+        transform.rotation = Quaternion.Lerp(transform.rotation, lookRot, Time.deltaTime * effTurnSpeed);
     }
 
     void Shoot(GameObject target)
     {
         if (projectilePrefab == null || firePoints.Length == 0)
-        {
-            Debug.LogWarning("⚠️ ProjectilePrefab atau FirePoints belum di-assign!");
-            return;
-        }
+        { Debug.LogWarning("⚠️ ProjectilePrefab/FirePoints belum di-assign!"); return; }
 
-        foreach (Transform fp in firePoints)
+        foreach (var fp in firePoints)
         {
-            GameObject proj = Instantiate(projectilePrefab, fp.position, Quaternion.identity);
-            Projectile p = proj.GetComponent<Projectile>();
-            if (p != null)
-            {
-                // kasih target + offset 1 unit ke atas
-                p.SetTarget(target.transform, new Vector3(0f, 1f, 0f));
-            }
+            var proj = Instantiate(projectilePrefab, fp.position, Quaternion.identity);
+            var p = proj.GetComponent<Projectile>();
+            if (p != null) p.SetTarget(target.transform, new Vector3(0f, 1f, 0f));
+            // ❌ tidak set damage/speed di projectile lagi
         }
     }
 

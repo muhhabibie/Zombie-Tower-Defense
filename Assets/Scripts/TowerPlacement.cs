@@ -93,7 +93,7 @@ public class TowerPlacement : MonoBehaviour
             }
 
             float dist = Vector3.Distance(player.position, hit.point);
-            if (dist > placementRange)
+            if (dist > placementRange * BuffManager.PlacementRangeMul)
             {
                 Debug.LogWarning("❌ Too far from player. Distance: " + dist);
                 return;

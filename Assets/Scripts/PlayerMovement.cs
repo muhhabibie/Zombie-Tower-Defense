@@ -25,7 +25,7 @@ namespace LastBastion.Player
         public LayerMask groundMask;
 
         [Header("Coins")]
-        public int coinCount = 0; // jumlah koin yang dimiliki player
+        public int coinCount = 0;
         public TextMeshProUGUI coinTextUI;
 
         private CharacterController controller;
@@ -42,10 +42,14 @@ namespace LastBastion.Player
         private InputAction moveAction;
         private InputAction dashAction;
 
+        // NEW: terima efek slow dari aura musuh
+        private DebuffReceiver debuff; // <--- pastikan komponen ini terpasang di Player
+
         private void Start()
         {
             UpdateCoinUI();
         }
+
         private void Awake()
         {
             controller = GetComponent<CharacterController>();
@@ -59,9 +63,11 @@ namespace LastBastion.Player
 
             if (health == null) health = GetComponent<Health>();
             if (animator == null) animator = GetComponentInChildren<Animator>();
- 
-            GameObject coinTextObject = GameObject.Find("Coin Text");
 
+            // NEW: cache DebuffReceiver
+            debuff = GetComponent<DebuffReceiver>();
+
+            GameObject coinTextObject = GameObject.Find("Coin Text");
             if (coinTextObject != null)
             {
                 coinTextUI = coinTextObject.GetComponent<TextMeshProUGUI>();
@@ -86,7 +92,7 @@ namespace LastBastion.Player
                 isGrounded = controller.isGrounded;
 
             if (isGrounded && velocity.y < 0)
-                velocity.y = -2f; // biar nempel ke tanah
+                velocity.y = -2f;
 
             // === Ambil input WASD ===
             Vector2 moveValue = Vector2.zero;
@@ -118,7 +124,15 @@ namespace LastBastion.Player
                 TryDash();
             }
 
-            float speed = isDashing ? dashSpeed : moveSpeed;
+            // NEW: terapkan slow ke move speed (0..1). Clamp biar tidak nol total.
+            float slowMul = debuff ? Mathf.Clamp(debuff.MoveSpeedMul, 0.05f, 1f) : 1f;
+
+            // Jika ingin dash TETAP terpengaruh slow, gunakan baris ini:
+            float baseSpeed = isDashing ? dashSpeed : moveSpeed;
+            float speed = baseSpeed * slowMul;
+
+            // Jika ingin dash TIDAK terpengaruh slow, ganti dua baris di atas menjadi:
+            // float speed = isDashing ? dashSpeed : moveSpeed * slowMul;
 
             // === Movement ===
             Vector3 finalMove = moveDir * speed;
@@ -174,7 +188,7 @@ namespace LastBastion.Player
                 coinCount++;
                 Debug.Log($"Coin collected! Total coins: {coinCount}");
                 UpdateCoinUI();
-                Destroy(other.gameObject); // hapus koin
+                Destroy(other.gameObject);
             }
         }
 
