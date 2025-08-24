@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7560839904372727587}
   - component: {fileID: 2163995162986490309}
+  - component: {fileID: 4213053271739122441}
+  - component: {fileID: 5189759281320692221}
   m_Layer: 0
   m_Name: Map Generated
   m_TagString: Untagged
@@ -48,14 +50,16 @@ MonoBehaviour:
   height: 10
   tileSize: 5
   outerFrameSize: 8
+  spawnTileScale: {x: 1, y: 1, z: 1}
+  endTileScale: {x: 1, y: 1, z: 1}
   groundTilePrefab: {fileID: 7714473653152561929, guid: 996c1419cf0ace64bab96243f4c33816, type: 3}
   slopePrefab: {fileID: 8017198237532364294, guid: 02130f7428f0600498995e3586284a62, type: 3}
-  pathSpawnPrefab: {fileID: 2101025672852676884, guid: ad0265deb71a98a4f8b183632e1222db, type: 3}
+  pathSpawnPrefab: {fileID: 1946180478929042388, guid: 9ec446933e639d940b1fcf9a288d292e, type: 3}
   pathStraightPrefab: {fileID: 7886269513466402156, guid: f92950937fcc1c94ab5215030e19042f, type: 3}
   pathCornerPrefab: {fileID: 8543500886406535809, guid: 5354357ec31f7e7448b27069ce7a4696, type: 3}
   pathSplitPrefab: {fileID: 8040587116041708264, guid: 7d496fce5d0928c40a0ce0a4aac9fc88, type: 3}
   pathCrossingPrefab: {fileID: 3822925210928350791, guid: f3388ace336b0824da4bca35bec55bb6, type: 3}
-  pathEndPrefab: {fileID: 5813276761818588256, guid: 295fb58f8cb87d6488bc25de3c578079, type: 3}
+  pathEndPrefab: {fileID: 1946180478929042388, guid: 9ec446933e639d940b1fcf9a288d292e, type: 3}
   riverStraightPrefab: {fileID: 5853331488038810696, guid: 5bb3cd7f47e04c44381602b63bb66468, type: 3}
   riverCornerPrefab: {fileID: 7931910898363737418, guid: 8a24a4261d6fe2f4a9e75c13b77d33bd, type: 3}
   decorationPrefabs:
@@ -74,3 +78,33 @@ MonoBehaviour:
   decorationDensity: 0.15
   tallGroundGroupChance: 0.1
   waypoints: []
+  endPointGridCoord: {x: 0, y: 0}
+  spawnPointGridCoord: {x: 0, y: 0}
+--- !u!114 &4213053271739122441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4756732779718767660}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64923e51d1c94a74d97077d733d6627e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  castlePrefab: {fileID: 3881640221407357785, guid: 23c6ac65fa6045d41b6a16d2b648322b, type: 3}
+  mapGenerator: {fileID: 2163995162986490309}
+--- !u!114 &5189759281320692221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4756732779718767660}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: def4bb4eae4860e4b8e738b5dfb28b67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gatePrefab: {fileID: 124269131230308488, guid: 2dc8e81551d882d439231a64468b00da, type: 3}
+  mapGenerator: {fileID: 2163995162986490309}
